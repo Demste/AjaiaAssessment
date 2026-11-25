@@ -2,11 +2,12 @@ import { EditorContent, useEditor } from '@tiptap/react'
 import { AlertCircle, Check, Circle, LayoutGrid, LoaderCircle, Pencil, Save, UserRound, UsersRound } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useBlocker, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { MAX_TITLE_LENGTH } from '../shared/contracts'
+import { DEFAULT_TITLE, MAX_TITLE_LENGTH } from '../shared/contracts'
 import type { DocumentPatch, DocumentRecord } from '../shared/contracts'
 import { editorExtensions } from '../shared/editor'
 import { api, errorMessage } from './api'
 import { ErrorNotice, Loading, UserSelector } from './components'
+import { ExportMenu } from './export-menu'
 import { FormattingToolbar } from './formatting'
 import { ShareDialog } from './share-dialog'
 import { useWorkspace } from './workspace'
@@ -153,6 +154,7 @@ function DocumentEditor({ document, returnTo }: { document: DocumentRecord; retu
 
   const status = saving ? 'Saving…' : saveError ? 'Save failed' : dirty ? 'Unsaved changes' : 'Saved'
   const StatusIcon = saving ? LoaderCircle : saveError ? AlertCircle : dirty ? Circle : Check
+  const exportTitle = (owner ? title : savedTitle).trim() || DEFAULT_TITLE
 
   return (
     <div className="editor-page">
@@ -171,6 +173,7 @@ function DocumentEditor({ document, returnTo }: { document: DocumentRecord; retu
             <p><UserRound size={15} aria-hidden="true" /> Owned by {document.owner.name}{!owner && <span className="access-label">Editor access</span>}</p>
           </div>
           <div className="editor-actions">
+            {editor && <ExportMenu editor={editor} title={exportTitle} />}
             {owner && <button className="button button-secondary" onClick={() => setShowShare(true)}>
               <UsersRound size={17} aria-hidden="true" /> Share
             </button>}
@@ -187,7 +190,10 @@ function DocumentEditor({ document, returnTo }: { document: DocumentRecord; retu
         {editor ? (
           <>
             <FormattingToolbar editor={editor} />
-            <div className="paper"><EditorContent editor={editor} /></div>
+            <div className="paper">
+              <h1 className="print-document-title">{exportTitle}</h1>
+              <EditorContent editor={editor} />
+            </div>
           </>
         ) : <Loading text="Loading the editor…" />}
       </main>

@@ -12,8 +12,12 @@ The first automated run passed 9 of 10 tests. The persistence test reported `EBU
 
 Human usability testing identified that accidentally created documents could not be deleted. Codex added owner-only permanent deletion, share cleanup, and tests for successful deletion and denied requests. The expanded suite passed all 13 tests.
 
-## Deployment and final verification
+## Deployment and MVP verification
 
 The human configured Render and Turso. Codex added the configurable listener and adapted database writes for remote libSQL, including atomic deletion of documents and shares. Render built and deployed successfully, and its npm audit reported zero vulnerabilities.
 
 After the deployment compatibility changes, the human reran `npm test` (13 passed in 2.54 seconds), `npm run typecheck` (passed with no errors), and `npm run build` (succeeded in 2.90 seconds). The build emitted a non-blocking warning for a 751.80 KB JavaScript bundle (241.44 KB gzipped). The human also verified the core live workflows, persistence after page refresh, and owner-only deletion.
+
+## Optional document export
+
+After the required MVP and the human-driven deletion improvement were verified, the human requested one stretch feature. Codex added client-side Markdown export and a browser print view for the open draft, then wrote unit tests for Markdown conversion and filenames. Export verification remains pending for the human tester. The [future improvement priorities](SUBMISSION.md#future-improvement-priorities) remain open.

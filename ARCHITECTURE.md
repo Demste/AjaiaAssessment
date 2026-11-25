@@ -11,7 +11,13 @@ React, Vite, and TypeScript power the dashboard and document editor. React Route
 
 The editor keeps title and content edits in memory until Save is pressed. Each save submits the changed fields. A content revision counter keeps edits made during an in-flight save marked as unsaved. The only browser-persisted setting is the demo identity.
 
-In **My Documents**, an owner can confirm permanent deletion from a document's row. The dashboard removes the row after the API confirms deletion and displays an error if the request fails.
+The required MVP covers editing, manual saving, TXT import, and owner/editor sharing. Human usability testing led to owner-only deletion in **My Documents**. The dashboard removes the row after the API confirms deletion and displays an error if the request fails.
+
+### Optional document export
+
+The Export control is available to both roles. Markdown serialization reads the live Tiptap JSON and uses the current title for a sanitized browser download. The serializer escapes literal Markdown, keeps supported marks, and writes underlined text without underline styling. Print CSS renders the draft title and existing editor content in the browser's print layout, including underline. Both paths work from the open draft and use no API or database writes.
+
+The serializer has focused unit tests in `tests/markdown-export.test.ts`. Human verification of the export changes is pending. See the [future improvement priorities](SUBMISSION.md#future-improvement-priorities).
 
 ## Backend
 

@@ -12,6 +12,7 @@ The Render Free instance may sleep after 15 minutes of inactivity. Allow about 6
 2. Create a document, format some text, and click **Save**. You can also import a UTF-8 `.txt` file up to 1 MB.
 3. Use **Share** to grant the other user editor access. Switch to that user and open the document under **Shared with Me** to edit and save it.
 4. Switch back to the owner to rename or permanently delete the document. Deleting the document also removes its shares.
+5. As either user, open **Export** to download Markdown or open **Print / Save as PDF**. Both options include the open draft, even before saving.
 
 ## Run locally
 
@@ -24,16 +25,15 @@ npm run dev
 
 Open [Workspace at localhost:5173](http://127.0.0.1:5173). Startup creates `data/workspace.db` and seeds both demo users.
 
-## Implemented features
+## Implemented scope
 
-- Rich-text editing with headings, lists, inline formatting, manual save status, and unsaved-change warnings.
-- UTF-8 TXT import that preserves line breaks and treats markup as text.
-- Separate owned and shared document views, owner-only rename and deletion, and server-enforced editor permissions.
-- Persistent documents and sharing records in local SQLite or hosted Turso.
+- **Mandatory MVP** · Rich-text editing, manual save status and unsaved-change warnings, UTF-8 TXT import, demo identities, owned and shared views, owner-only renaming, server-enforced editor permissions, and persistent documents and shares.
+- **Human-driven improvement** · Owner-only permanent deletion with share cleanup, identified during usability testing.
+- **Optional stretch enhancement** · Markdown download and native Print / Save as PDF for the current draft, available to owners and shared editors.
 
-## Final verification
+## MVP verification
 
-The human tester reported these results after the deployment compatibility changes.
+The human tester reported these results after the deployment compatibility changes and before document export was added.
 
 | Check | Result |
 | --- | --- |
@@ -44,17 +44,23 @@ The human tester reported these results after the deployment compatibility chang
 | Render npm audit | Reported zero vulnerabilities |
 | Live manual checks | Core workflows, persistence after page refresh, and owner-only deletion passed |
 
+The Markdown unit tests and both export workflows are pending human verification.
+
 ## Known limitations
 
 - The public demo uses selectable identities. Reviewers should keep sensitive data out of it.
 - Saving is manual. Concurrent saves use last-write-wins, and changes appear when a collaborator reopens the document.
 - Sharing grants one editor role, and access lasts until the owner permanently deletes the document.
 - The build has a non-blocking warning for a 751.80 KB JavaScript bundle (241.44 KB gzipped).
+- Markdown keeps the text but drops underline styling. PDF pagination follows browser print settings.
 
-## Improvements with another 2–4 hours
+## Future improvement priorities
 
-- Split editor code from the dashboard bundle and compare initial download sizes.
-- Add a repeatable browser smoke test for creation, sharing, page refresh, and deletion. Record a separate hosted restart persistence check.
+1. Debounced autosave.
+2. Share revocation.
+3. Concurrent-edit conflict detection.
+4. Bundle optimization.
+5. Automated browser smoke tests.
 
 ## Deliverables
 
@@ -64,6 +70,7 @@ The human tester reported these results after the deployment compatibility chang
 | Public source repository | [Demste/AjaiaAssessment](https://github.com/Demste/AjaiaAssessment) |
 | Frontend, API, and shared types | `src/`, `server/`, `shared/`, and `index.html` |
 | Integration tests | `tests/documents.test.ts` and `tests/fixtures/file-database.ts` |
+| Markdown export unit tests | `tests/markdown-export.test.ts` |
 | Setup and configuration | `package.json`, `package-lock.json`, `tsconfig.json`, `vite.config.ts`, `vitest.config.ts`, `.env.example`, and `.gitignore` |
 | Project documentation | `README.md`, `ARCHITECTURE.md`, `AI_WORKFLOW.md`, and `SUBMISSION.md` |
 | Google Drive folder URL | Pending |

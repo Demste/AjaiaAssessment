@@ -1,6 +1,6 @@
 # Workspace
 
-Workspace is a rich-text document editor with manual saving, UTF-8 TXT import, and editor access for a second demo user. Owners can rename, share, and permanently delete their documents.
+Workspace's required MVP covers rich-text editing, manual saving, UTF-8 TXT import, and sharing with a second demo user. Owner-only deletion was added after human usability testing. Document export is an optional stretch enhancement.
 
 **[Live application](https://ajaiaassessment.onrender.com)** · **[Public GitHub repository](https://github.com/Demste/AjaiaAssessment)**
 
@@ -32,12 +32,19 @@ No account, API key, or cloud service is required. The API creates `data/workspa
 
 Use **Import TXT** with a UTF-8 `.txt` file up to 1 MB (1,048,576 bytes). The name without its extension becomes the title, which may be up to 120 characters. The API validates the file before saving it, preserves line breaks, and treats markup as plain text. Workspace stores the resulting Tiptap JSON in SQLite and discards the uploaded bytes.
 
+## Export documents
+
+Owners and shared editors can use **Export** to download or print the current draft, including unsaved edits. Both actions work in the browser without saving the document.
+
+- **Download Markdown (.md)** exports headings, paragraphs, bold, italic, lists, and line breaks using a filename based on the document title. Underlined text keeps its text and any bold or italic styling. Numbered lists use decimal markers, and a few emphasis and line-break cases use inline HTML.
+- **Print / Save as PDF** opens the browser's print dialog with the title and formatted content. Choose **Save as PDF** if your browser offers it. Paper size, pagination, and browser headers and footers depend on the print settings.
+
 ## Project commands
 
 | Command | Purpose |
 | --- | --- |
 | `npm run dev` | Start the Vite frontend and Express API |
-| `npm test` | Run the Vitest/Supertest suite against isolated SQLite databases |
+| `npm test` | Run the SQLite integration suite and Markdown export unit tests |
 | `npm run typecheck` | Check TypeScript across the frontend, API, and tests |
 | `npm run build` | Build the frontend into `dist/` |
 | `npm start` | Serve the built frontend and API at [http://127.0.0.1:3001](http://127.0.0.1:3001) after building |
@@ -69,9 +76,11 @@ On startup, Express initializes the Turso schema and seeds Alex Morgan and Jamie
 - Sharing grants a fixed editor role to the other demo user. Owners retain title and sharing control. The application provides no share revocation.
 - The production build emits a non-blocking warning for a 751.80 KB JavaScript bundle (241.44 KB gzipped).
 
+See the [future improvement priorities](SUBMISSION.md#future-improvement-priorities).
+
 ## Verification status
 
-The human tester reported these results after the deployment compatibility changes.
+The human tester reported these results after the deployment compatibility changes and before document export was added.
 
 | Check | Result |
 | --- | --- |
@@ -81,3 +90,5 @@ The human tester reported these results after the deployment compatibility chang
 | Render build and deployment | Succeeded |
 | Render npm audit | Reported zero vulnerabilities |
 | Live manual checks | Core workflows, persistence after page refresh, and owner-only deletion passed |
+
+The Markdown unit tests and both export workflows are pending human verification.
