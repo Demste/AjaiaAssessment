@@ -4,6 +4,8 @@ Workspace is a rich-text document editor with local SQLite and a hosted demo bac
 
 **[Live application](https://ajaiaassessment.onrender.com)** · **[Public GitHub repository](https://github.com/Demste/AjaiaAssessment)**
 
+**[Walkthrough video](https://youtu.be/BwXlHRRIoe8)** · **[Google Drive submission folder](https://drive.google.com/drive/folders/1V189L1mI_bk9Gh_YheDY5yuLBRVB60md?usp=sharing)**
+
 The Render Free instance may sleep after 15 minutes of inactivity. Allow about 60 seconds for the first request to wake the service. [Render Free web services](https://render.com/docs/free#spinning-down-on-idle)
 
 ## Demo walkthrough
@@ -41,7 +43,7 @@ The human tester reported these results after document export was added.
 | `npm test` | 25/25 passed in 2.21 seconds (13 backend integration tests and 12 Markdown export unit tests) |
 | `npm run typecheck` | Passed with no errors |
 | `npm run build` | Succeeded in 3.16 seconds with a non-blocking bundle-size warning |
-| Live manual checks | Editing, saving, sharing, Markdown download, browser PDF export, and export as a shared editor passed |
+| Live manual checks | Editing, saving, sharing, owner-only deletion, Markdown download, browser PDF export, and export as a shared editor passed |
 
 ## Known limitations
 
@@ -75,12 +77,16 @@ With another 2–4 hours, the first priority would be a debounced autosave proto
 
 ### Google Drive package
 
-| Deliverable | Status |
+The package is prepared for manual upload to the [Google Drive submission folder](https://drive.google.com/drive/folders/1V189L1mI_bk9Gh_YheDY5yuLBRVB60md?usp=sharing).
+
+| File | Contents |
 | --- | --- |
-| Complete source code archive | To be included in the Google Drive package |
-| `README.md`, `ARCHITECTURE.md`, `AI_WORKFLOW.md`, `SUBMISSION.md`, and `LIVE_URL.txt` | Available in the repository for packaging |
-| `VIDEO_URL.txt` | Pending recording and walkthrough link |
-| Google Drive submission folder URL | Pending |
-| Walkthrough video URL | Pending |
+| `Workspace_Source.zip` | Source, tests, configuration, and documentation from the final Git commit |
+| `README.md` | Setup, usage, and verification results |
+| `ARCHITECTURE.md` | Application architecture and deployment decisions |
+| `AI_WORKFLOW.md` | AI-assisted development and human verification |
+| `SUBMISSION.md` | Review instructions, project links, and deliverables |
+| `LIVE_URL.txt` | Live application link and Render cold-start notice |
+| `VIDEO_URL.txt` | [Recorded walkthrough](https://youtu.be/BwXlHRRIoe8) |
 
 Screenshots are optional for standard review. The live demo opens without registration or special setup.
