@@ -178,6 +178,8 @@ export function createApp(db: Client, staticDirectory?: string) {
     if (!recipient) throw new ApiError(400, 'Select a valid demo user.')
     if (recipient.id === document.owner.id) throw new ApiError(400, 'You already own this document.')
     if (!await insertShare(db, document.id, recipient.id)) {
+      // A concurrent deletion can also leave the insert with no matching row.
+      await requireDocument(req, res.locals.user, true)
       throw new ApiError(409, 'This user already has editor access.')
     }
     res.status(201).json(recipient)

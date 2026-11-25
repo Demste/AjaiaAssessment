@@ -14,7 +14,7 @@ export async function openDatabase(config?: Config): Promise<Client> {
   })
 
   try {
-    await db.execute('PRAGMA foreign_keys = ON')
+    if (db.protocol === 'file') await db.execute('PRAGMA foreign_keys = ON')
     await db.batch([
       `CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY NOT NULL,
@@ -114,7 +114,8 @@ export async function insertDocument(
   db: Client, owner: User, title: string, content: string,
 ): Promise<DocumentRecord> {
   const { rows: [row] } = await db.execute({
-    sql: `INSERT INTO documents (id, owner_id, title, content) VALUES (?, ?, ?, ?)
+    sql: `INSERT INTO documents (id, owner_id, title, content)
+          VALUES (?, (SELECT id FROM users WHERE id = ?), ?, ?)
           RETURNING id, title, created_at, updated_at`,
     args: [randomUUID(), owner.id, title, content],
   })
@@ -138,10 +139,17 @@ export async function updateDocument(
 }
 
 export async function deleteOwnedDocument(db: Client, id: string, ownerId: string): Promise<boolean> {
-  const result = await db.execute({
-    sql: 'DELETE FROM documents WHERE id = ? AND owner_id = ?',
-    args: [id, ownerId],
-  })
+  const args = [id, ownerId]
+  // Foreign-key enforcement is connection-scoped on remote libSQL.
+  const [, result] = await db.batch([
+    {
+      sql: `DELETE FROM document_shares WHERE document_id = (
+              SELECT id FROM documents WHERE id = ? AND owner_id = ?
+            )`,
+      args,
+    },
+    { sql: 'DELETE FROM documents WHERE id = ? AND owner_id = ?', args },
+  ], 'write')
   return result.rowsAffected > 0
 }
 
@@ -156,7 +164,9 @@ export async function listCollaborators(db: Client, documentId: string): Promise
 
 export async function insertShare(db: Client, documentId: string, userId: string): Promise<boolean> {
   const result = await db.execute({
-    sql: `INSERT INTO document_shares (document_id, user_id) VALUES (?, ?)
+    sql: `INSERT INTO document_shares (document_id, user_id)
+          SELECT d.id, u.id FROM documents d CROSS JOIN users u
+          WHERE d.id = ? AND u.id = ?
           ON CONFLICT (document_id, user_id) DO NOTHING`,
     args: [documentId, userId],
   })

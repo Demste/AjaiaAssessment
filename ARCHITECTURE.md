@@ -10,7 +10,7 @@ In **My Documents**, an owner can confirm permanent deletion from a document's r
 
 ## Backend
 
-`server/app.ts` exports `createApp(db, staticDirectory?)`. It serves the Express REST API and can also serve a built frontend. `server/index.ts` loads configuration, opens the database, and binds the listener to localhost. Keeping those responsibilities separate allows Supertest to use the same application with isolated databases.
+`server/app.ts` exports `createApp(db, staticDirectory?)`. It serves the Express REST API and can also serve a built frontend. `server/index.ts` loads configuration, opens the database, and binds to `HOST` and `PORT`, defaulting to `127.0.0.1:3001`. Keeping those responsibilities separate allows Supertest to use the same application with isolated databases.
 
 | Endpoint | Access |
 | --- | --- |
@@ -36,14 +36,14 @@ The API validates editor JSON against the same ProseMirror schema as the fronten
 | `documents` | UUID primary key, foreign key `owner_id`, title, Tiptap JSON, and creation and update timestamps |
 | `document_shares` | Foreign keys `document_id` and `user_id`, creation timestamp, and a composite primary key that prevents duplicate grants |
 
-`server/database.ts` centralizes connection, schema initialization, and parameterized SQL. Initialization uses create-if-absent and conflict-safe inserts. The API rejects self-sharing. Using SQLite keeps local setup small and the data durable. Direct parameterized SQL covers the small schema, and the libSQL client provides a configuration path to a remote database.
+`server/database.ts` centralizes connection, schema initialization, and parameterized SQL. The libSQL client opens a local SQLite file by default and uses the Turso endpoint and token when configured. Startup runs create-if-absent DDL and conflict-safe demo-user inserts in one write batch before accepting requests. [Turso TypeScript SDK](https://docs.turso.tech/sdk/ts/reference#batch-transactions)
 
-The delete statement includes the document ID and owner ID. The existing `ON DELETE CASCADE` foreign key removes share records in the same statement.
+The schema retains its foreign keys and `ON DELETE CASCADE`, and the local SQLite connection enables enforcement at startup. The remote HTTP client opens a new stream for each operation, so connection-level settings do not carry over from startup. Document and share inserts check that referenced rows exist as part of the write. Deletion removes shares and the document in a single write batch, with the owner checked in both statements. This keeps the operation atomic when the connection's foreign-key setting varies. [SQLite foreign key support](https://sqlite.org/foreignkeys.html#fk_enable)
 
-The assessment permits simulated authentication. The local database seeds Alex Morgan and Jamie Chen so reviewers can exercise ownership and sharing without provisioning an identity service. A production system would need to authenticate requests and derive the acting identity from verified credentials.
+The assessment permits simulated authentication. Both database modes seed Alex Morgan and Jamie Chen so reviewers can exercise ownership and sharing. The public service is a demo with selectable identities. A production system would need to derive the acting identity from verified credentials before storing private user documents.
 
 ## Scope and deployment
 
 This MVP covers manual local editing and one editor role. Saves use last-write-wins for the fields in each request, and shared editors see persisted changes when they reopen the document. Real authentication, live collaboration, autosave, version history, and advanced sharing controls are outside the local scope.
 
-A future Vercel deployment would need a platform entry point around `createApp`, durable remote libSQL storage for a serverless environment, and routing for Vite assets, document URLs, and `/api`. Authentication and request identity would need to be addressed before storing private user documents.
+Render installs dependencies with `npm ci --include=dev` and builds the frontend with `npm run build`. `npm start` uses the runtime dependency `tsx` to start Express with the built `dist/` directory. Express serves frontend assets, document deep links, and the API on one origin. The browser uses relative `/api` URLs. Express binds to `HOST=0.0.0.0` on the port Render supplies. Turso credentials stay on the server in Render's environment. [Render Web Services](https://render.com/docs/web-services)

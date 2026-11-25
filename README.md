@@ -38,7 +38,25 @@ Use **Import TXT** with a UTF-8 `.txt` file up to 1 MB (1,048,576 bytes). The na
 
 ## Optional configuration
 
-Copy `.env.example` to `.env` to override defaults. Set `PORT` for the API and local production server. Set `LIBSQL_URL` for a different SQLite file or a future remote libSQL endpoint. When specifying another local path, create its parent directory first. A remote database can use `LIBSQL_AUTH_TOKEN`.
+Copy `.env.example` to `.env` to override defaults. Express listens on `127.0.0.1:3001` by default. Set `HOST` or `PORT` to override the listener. Set `LIBSQL_URL` for a different SQLite file or a remote libSQL database. Create the parent directory first when specifying a different local file.
+
+## Deploy to Render with Turso
+
+Use the existing Render Free Web Service in Frankfurt with the Node runtime, the GitHub repository's `main` branch, and these settings.
+
+| Setting | Value |
+| --- | --- |
+| Build command | `npm ci --include=dev && npm run build` |
+| Start command | `npm start` |
+| `NODE_VERSION` | `22` |
+| `HOST` | `0.0.0.0` |
+| `PORT` | Provided by Render |
+| `LIBSQL_URL` | Existing Turso libSQL database URL, set in Render |
+| `LIBSQL_AUTH_TOKEN` | Existing Turso database token with schema and write access, set securely in Render |
+
+On startup, Express initializes the Turso schema and seeds Alex Morgan and Jamie Chen if needed. The service serves the built frontend and `/api` from the same public origin. Local SQLite files stay local. [Render Web Services](https://render.com/docs/web-services) · [Turso TypeScript SDK](https://docs.turso.tech/sdk/ts/reference)
+
+Use demo data on the public service because visitors can select either demo identity.
 
 ## Known limitations
 
@@ -49,4 +67,4 @@ Copy `.env.example` to `.env` to override defaults. Set `PORT` for the API and l
 
 ## Verification status
 
-The human tester confirmed that all 13 integration tests and TypeScript type checking passed. The production build succeeded, and the local production application ran successfully. All core manual functionality checks passed, including owner-only deletion.
+For the local MVP before deployment preparation, the human tester confirmed that all 13 integration tests and TypeScript type checking passed. The production build succeeded, the local production application ran successfully, and all core manual functionality checks passed, including owner-only deletion. Live Render and Turso verification is pending.
