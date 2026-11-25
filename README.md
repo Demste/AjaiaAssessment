@@ -6,7 +6,7 @@ Workspace's required MVP covers rich-text editing, manual saving, UTF-8 TXT impo
 
 Render Free can put the service to sleep after 15 minutes of inactivity. Allow about 60 seconds for the first request to wake it. No paid services or dependencies are required for review. [Render Free web services](https://render.com/docs/free#spinning-down-on-idle)
 
-The public demo uses simulated identities. Anyone can select Alex Morgan or Jamie Chen without registering or entering a password. Do not enter sensitive information.
+The public demo uses simulated identities. Anyone can select Alex Morgan or Jamie Chen without registering or entering a password. Use sample text and keep confidential information out of the demo.
 
 ## Run locally
 
@@ -74,21 +74,17 @@ On startup, Express initializes the Turso schema and seeds Alex Morgan and Jamie
 - The demo selector simulates authentication. The API trusts the selected identity header, so anyone with API access can act as either demo user.
 - Document saves are manual. Concurrent saves use last-write-wins for the fields included in each request. Collaborators see saved changes when they reopen the document.
 - Sharing grants a fixed editor role to the other demo user. Owners retain title and sharing control. The application provides no share revocation.
-- The production build emits a non-blocking warning for a 751.80 KB JavaScript bundle (241.44 KB gzipped).
+- The production build emits a non-blocking bundle-size warning. It produced 755.87 KB of JavaScript (243.00 KB gzipped) and 19.04 KB of CSS.
 
 See the [future improvement priorities](SUBMISSION.md#future-improvement-priorities).
 
 ## Verification status
 
-The human tester reported these results after the deployment compatibility changes and before document export was added.
+The human tester reported these results after document export was added.
 
 | Check | Result |
 | --- | --- |
-| `npm test` | All 13 integration tests passed in 2.54 seconds |
+| `npm test` | 25/25 passed in 2.21 seconds (13 backend integration tests and 12 Markdown export unit tests) |
 | `npm run typecheck` | Passed with no errors |
-| `npm run build` | Succeeded in 2.90 seconds with the non-blocking bundle-size warning above |
-| Render build and deployment | Succeeded |
-| Render npm audit | Reported zero vulnerabilities |
-| Live manual checks | Core workflows, persistence after page refresh, and owner-only deletion passed |
-
-The Markdown unit tests and both export workflows are pending human verification.
+| `npm run build` | Succeeded in 3.16 seconds with the non-blocking bundle-size warning above |
+| Live manual checks | Editing, saving, sharing, Markdown download, browser PDF export, and export as a shared editor passed |

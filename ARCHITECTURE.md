@@ -15,9 +15,9 @@ The required MVP covers editing, manual saving, TXT import, and owner/editor sha
 
 ### Optional document export
 
-The Export control is available to both roles. Markdown serialization reads the live Tiptap JSON and uses the current title for a sanitized browser download. The serializer escapes literal Markdown, keeps supported marks, and writes underlined text without underline styling. Print CSS renders the draft title and existing editor content in the browser's print layout, including underline. Both paths work from the open draft and use no API or database writes.
+The Export control is available to both roles. Client-side Markdown serialization reads the live Tiptap JSON, escapes literal Markdown, and downloads the result with a sanitized filename. Underlined text keeps its content and other marks. Print-specific CSS gives the browser's print dialog the draft title and formatted content, including underline. Keeping export in the browser lets both formats use the open draft while keeping the database, REST API, and hosting infrastructure out of the export path.
 
-The serializer has focused unit tests in `tests/markdown-export.test.ts`. Human verification of the export changes is pending. See the [future improvement priorities](SUBMISSION.md#future-improvement-priorities).
+The serializer has focused unit tests in `tests/markdown-export.test.ts`. The human tester verified both export options on the live application, including export as a shared editor.
 
 ## Backend
 
@@ -51,7 +51,7 @@ The API validates editor JSON against the same ProseMirror schema as the fronten
 
 The schema retains its foreign keys and `ON DELETE CASCADE`, and the local SQLite connection enables enforcement at startup. The remote HTTP client opens a new stream for each operation, so connection-level settings do not carry over from startup. Document and share inserts check that referenced rows exist as part of the write. Deletion removes shares and the document in a single write batch, with the owner checked in both statements. This keeps the operation atomic when the connection's foreign-key setting varies. [SQLite foreign key support](https://sqlite.org/foreignkeys.html#fk_enable)
 
-Simulated identities let reviewers exercise ownership and sharing without registration or an identity provider. Real authentication and real-time editing were excluded to keep the MVP focused on document editing and sharing. Edits require a manual save. Concurrent saves use last-write-wins for the fields sent, and collaborators see saved changes when they reopen the document.
+Simulated identities let reviewers exercise ownership and sharing without registration or an identity provider. Production authentication, real-time editing, autosave, and advanced collaboration were deliberately deferred to keep the MVP focused on editing and sharing. Edits require a manual save. Concurrent saves use last-write-wins for the fields sent, and collaborators see saved changes when they reopen the document. See the [future improvement priorities](SUBMISSION.md#future-improvement-priorities).
 
 ## Deployment
 

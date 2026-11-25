@@ -30,36 +30,35 @@ Open [Workspace at localhost:5173](http://127.0.0.1:5173). Startup creates `data
 - **Mandatory MVP** · Rich-text editing, manual save status and unsaved-change warnings, UTF-8 TXT import, demo identities, owned and shared views, owner-only renaming, server-enforced editor permissions, and persistent documents and shares.
 - **Human-driven improvement** · Owner-only permanent deletion with share cleanup, identified during usability testing.
 - **Optional stretch enhancement** · Markdown download and native Print / Save as PDF for the current draft, available to owners and shared editors.
+- **Intentionally deferred** · Production authentication, real-time editing, autosave, and advanced collaboration features.
 
-## MVP verification
+## Final verification
 
-The human tester reported these results after the deployment compatibility changes and before document export was added.
+The human tester reported these results after document export was added.
 
 | Check | Result |
 | --- | --- |
-| `npm test` | All 13 integration tests passed in 2.54 seconds |
+| `npm test` | 25/25 passed in 2.21 seconds (13 backend integration tests and 12 Markdown export unit tests) |
 | `npm run typecheck` | Passed with no errors |
-| `npm run build` | Succeeded in 2.90 seconds |
-| Render build and deployment | Succeeded |
-| Render npm audit | Reported zero vulnerabilities |
-| Live manual checks | Core workflows, persistence after page refresh, and owner-only deletion passed |
-
-The Markdown unit tests and both export workflows are pending human verification.
+| `npm run build` | Succeeded in 3.16 seconds with a non-blocking bundle-size warning |
+| Live manual checks | Editing, saving, sharing, Markdown download, browser PDF export, and export as a shared editor passed |
 
 ## Known limitations
 
 - The public demo uses selectable identities. Reviewers should keep sensitive data out of it.
 - Saving is manual. Concurrent saves use last-write-wins, and changes appear when a collaborator reopens the document.
 - Sharing grants one editor role, and access lasts until the owner permanently deletes the document.
-- The build has a non-blocking warning for a 751.80 KB JavaScript bundle (241.44 KB gzipped).
-- Markdown keeps the text but drops underline styling. PDF pagination follows browser print settings.
+- The build has a non-blocking bundle-size warning. It produced 755.87 KB of JavaScript (243.00 KB gzipped) and 19.04 KB of CSS.
+- Markdown preserves the content of underlined text and omits the underline styling. PDF export uses the browser print dialog, with pagination and Save as PDF availability depending on the browser.
 
 ## Future improvement priorities
 
+With another 2–4 hours, the first priority would be a debounced autosave prototype. The remaining items are follow-up work.
+
 1. Debounced autosave.
-2. Share revocation.
-3. Concurrent-edit conflict detection.
-4. Bundle optimization.
+2. Owner-controlled share revocation.
+3. Basic concurrent-edit conflict detection.
+4. Frontend bundle optimization.
 5. Automated browser smoke tests.
 
 ## Deliverables
@@ -73,5 +72,15 @@ The Markdown unit tests and both export workflows are pending human verification
 | Markdown export unit tests | `tests/markdown-export.test.ts` |
 | Setup and configuration | `package.json`, `package-lock.json`, `tsconfig.json`, `vite.config.ts`, `vitest.config.ts`, `.env.example`, and `.gitignore` |
 | Project documentation | `README.md`, `ARCHITECTURE.md`, `AI_WORKFLOW.md`, and `SUBMISSION.md` |
-| Google Drive folder URL | Pending |
+
+### Google Drive package
+
+| Deliverable | Status |
+| --- | --- |
+| Complete source code archive | To be included in the Google Drive package |
+| `README.md`, `ARCHITECTURE.md`, `AI_WORKFLOW.md`, `SUBMISSION.md`, and `LIVE_URL.txt` | Available in the repository for packaging |
+| `VIDEO_URL.txt` | Pending recording and walkthrough link |
+| Google Drive submission folder URL | Pending |
 | Walkthrough video URL | Pending |
+
+Screenshots are optional for standard review. The live demo opens without registration or special setup.
