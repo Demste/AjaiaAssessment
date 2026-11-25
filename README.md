@@ -1,6 +1,12 @@
 # Workspace
 
-Workspace is a local rich-text document editor with manual saving, UTF-8 TXT import, and editor access for a second demo user. Owners can rename, share, and permanently delete their documents from the workspace.
+Workspace is a rich-text document editor with manual saving, UTF-8 TXT import, and editor access for a second demo user. Owners can rename, share, and permanently delete their documents.
+
+**[Live application](https://ajaiaassessment.onrender.com)** · **[Public GitHub repository](https://github.com/Demste/AjaiaAssessment)**
+
+Render Free can put the service to sleep after 15 minutes of inactivity. Allow about 60 seconds for the first request to wake it. No paid services or dependencies are required for review. [Render Free web services](https://render.com/docs/free#spinning-down-on-idle)
+
+The public demo uses simulated identities. Anyone can select Alex Morgan or Jamie Chen without registering or entering a password. Do not enter sensitive information.
 
 ## Run locally
 
@@ -42,7 +48,7 @@ Copy `.env.example` to `.env` to override defaults. Express listens on `127.0.0.
 
 ## Deploy to Render with Turso
 
-Use the existing Render Free Web Service in Frankfurt with the Node runtime, the GitHub repository's `main` branch, and these settings.
+The live app uses a Render Free Web Service in Frankfurt, the Node runtime, and the GitHub repository's `main` branch.
 
 | Setting | Value |
 | --- | --- |
@@ -54,17 +60,24 @@ Use the existing Render Free Web Service in Frankfurt with the Node runtime, the
 | `LIBSQL_URL` | Existing Turso libSQL database URL, set in Render |
 | `LIBSQL_AUTH_TOKEN` | Existing Turso database token with schema and write access, set securely in Render |
 
-On startup, Express initializes the Turso schema and seeds Alex Morgan and Jamie Chen if needed. The service serves the built frontend and `/api` from the same public origin. Local SQLite files stay local. [Render Web Services](https://render.com/docs/web-services) · [Turso TypeScript SDK](https://docs.turso.tech/sdk/ts/reference)
-
-Use demo data on the public service because visitors can select either demo identity.
+On startup, Express initializes the Turso schema and seeds Alex Morgan and Jamie Chen if needed. The service serves the built frontend and `/api` from the same public origin. Hosted documents and shares are stored in Turso, independently of Render's ephemeral filesystem. Local development defaults to SQLite. [Render Free web services](https://render.com/docs/free#local-files-lost-on-redeploy) · [Turso TypeScript SDK](https://docs.turso.tech/sdk/ts/reference)
 
 ## Known limitations
 
 - The demo selector simulates authentication. The API trusts the selected identity header, so anyone with API access can act as either demo user.
-- Document saves are manual. Concurrent saves use last-write-wins for the fields included in each request. Open editors receive updates when reopened.
+- Document saves are manual. Concurrent saves use last-write-wins for the fields included in each request. Collaborators see saved changes when they reopen the document.
 - Sharing grants a fixed editor role to the other demo user. Owners retain title and sharing control. The application provides no share revocation.
-- The production build emits a non-blocking bundle-size warning.
+- The production build emits a non-blocking warning for a 751.80 KB JavaScript bundle (241.44 KB gzipped).
 
 ## Verification status
 
-For the local MVP before deployment preparation, the human tester confirmed that all 13 integration tests and TypeScript type checking passed. The production build succeeded, the local production application ran successfully, and all core manual functionality checks passed, including owner-only deletion. Live Render and Turso verification is pending.
+The human tester reported these results after the deployment compatibility changes.
+
+| Check | Result |
+| --- | --- |
+| `npm test` | All 13 integration tests passed in 2.54 seconds |
+| `npm run typecheck` | Passed with no errors |
+| `npm run build` | Succeeded in 2.90 seconds with the non-blocking bundle-size warning above |
+| Render build and deployment | Succeeded |
+| Render npm audit | Reported zero vulnerabilities |
+| Live manual checks | Core workflows, persistence after page refresh, and owner-only deletion passed |

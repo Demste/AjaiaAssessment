@@ -1,5 +1,10 @@
 # Architecture
 
+## Runtime paths
+
+- **Local** · React and Vite → Express → local SQLite
+- **Deployed** · Browser → Render Express application → Turso libSQL
+
 ## Frontend
 
 React, Vite, and TypeScript power the dashboard and document editor. React Router handles document URLs and in-app navigation warnings. Tailwind CSS and shared styles define the responsive interface. Tiptap StarterKit provides the editor, with extensions limited to the supported document schema. The formatting controls derive their active state from the current selection.
@@ -36,14 +41,14 @@ The API validates editor JSON against the same ProseMirror schema as the fronten
 | `documents` | UUID primary key, foreign key `owner_id`, title, Tiptap JSON, and creation and update timestamps |
 | `document_shares` | Foreign keys `document_id` and `user_id`, creation timestamp, and a composite primary key that prevents duplicate grants |
 
-`server/database.ts` centralizes connection, schema initialization, and parameterized SQL. The libSQL client opens a local SQLite file by default and uses the Turso endpoint and token when configured. Startup runs create-if-absent DDL and conflict-safe demo-user inserts in one write batch before accepting requests. [Turso TypeScript SDK](https://docs.turso.tech/sdk/ts/reference#batch-transactions)
+`server/database.ts` centralizes connection setup, schema initialization, and parameterized SQL. The libSQL client defaults to `data/workspace.db` and uses `LIBSQL_URL` and `LIBSQL_AUTH_TOKEN` for the deployed Turso database. Startup creates missing tables and seeds Alex Morgan and Jamie Chen in one idempotent write batch before accepting requests. [Turso TypeScript SDK](https://docs.turso.tech/sdk/ts/reference#batch-transactions)
 
 The schema retains its foreign keys and `ON DELETE CASCADE`, and the local SQLite connection enables enforcement at startup. The remote HTTP client opens a new stream for each operation, so connection-level settings do not carry over from startup. Document and share inserts check that referenced rows exist as part of the write. Deletion removes shares and the document in a single write batch, with the owner checked in both statements. This keeps the operation atomic when the connection's foreign-key setting varies. [SQLite foreign key support](https://sqlite.org/foreignkeys.html#fk_enable)
 
-The assessment permits simulated authentication. Both database modes seed Alex Morgan and Jamie Chen so reviewers can exercise ownership and sharing. The public service is a demo with selectable identities. A production system would need to derive the acting identity from verified credentials before storing private user documents.
+Simulated identities let reviewers exercise ownership and sharing without registration or an identity provider. Real authentication and real-time editing were excluded to keep the MVP focused on document editing and sharing. Edits require a manual save. Concurrent saves use last-write-wins for the fields sent, and collaborators see saved changes when they reopen the document.
 
-## Scope and deployment
+## Deployment
 
-This MVP covers manual local editing and one editor role. Saves use last-write-wins for the fields in each request, and shared editors see persisted changes when they reopen the document. Real authentication, live collaboration, autosave, version history, and advanced sharing controls are outside the local scope.
+Render's Free Web Service runs the existing Express server and serves frontend assets, document links, and `/api` on one origin. Turso keeps the same libSQL client and schema while storing documents and shares independently of Render's ephemeral filesystem.
 
-Render installs dependencies with `npm ci --include=dev` and builds the frontend with `npm run build`. `npm start` uses the runtime dependency `tsx` to start Express with the built `dist/` directory. Express serves frontend assets, document deep links, and the API on one origin. The browser uses relative `/api` URLs. Express binds to `HOST=0.0.0.0` on the port Render supplies. Turso credentials stay on the server in Render's environment. [Render Web Services](https://render.com/docs/web-services)
+The Frankfurt service uses Node.js 22. Render runs `npm ci --include=dev && npm run build`, then `npm start` serves `dist/` and the API. Express binds to `HOST=0.0.0.0` on Render's port, and Turso credentials stay in Render's environment. After 15 minutes of inactivity, the Free instance may sleep and take about 60 seconds to wake on the next request. [Render Web Services](https://render.com/docs/web-services) · [Render Free web services](https://render.com/docs/free#spinning-down-on-idle)
